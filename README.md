@@ -19,3 +19,4 @@ nimble install gptcli
 # Intended use
 
 - quickly querying chat gpt from cli without using heavy electron(next.js) interface.
+- run `gptcli --help` for more info
