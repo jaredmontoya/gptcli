@@ -1,3 +1,6 @@
+.vscode
+.idea
 nimcache/
 nimblecache/
 htmldocs/
+gptcli

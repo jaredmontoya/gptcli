@@ -1,2 +1,21 @@
-# gptcli
-chatgpt cli client written in nim
+# GPTCLI
+![](https://img.shields.io/github/languages/top/HACCKKER/gptcli?style=flat)
+![](https://img.shields.io/github/languages/code-size/HACCKKER/gptcli?style=flat)
+
+[ChatGPT](https://chat.openai.com/chat) cli client written in nim
+
+# Installation
+To install gptcli, you can simply run
+```
+nimble install gptcli
+```
+- Uninstall with `nimble uninstall gptcli`.
+- nimble repo page: https://nimble.directory/pkg/gptcli
+
+# Requisites
+
+- [Nim](https://nim-lang.org)
+
+# Intended use
+
+- quickly querying chat gpt from cli without using heavy electron(next.js) interface.
