@@ -1,63 +1,64 @@
-import httpclient, json, strformat, os, strutils
-import std/jsonutils
+import httpclient, os, strutils
+import gptclipkg/openai
 
-#painless stopping
+# Painless keyboard interruption
 proc ctrlc() {.noconv.} =
   quit(QuitSuccess)
 setControlCHook(ctrlc)
 
-#check if api key environment variable is set
-if not existsEnv("OPENAI_API_KEY"):
-  echo("Environment variable OPENAI_API_KEY is not set, you can get one here: https://beta.openai.com/account/api-keys")
-  echo("add this:")
-  echo("  export OPENAI_API_KEY=your api key")
-  echo("to your .bashrc or .zshrc")
-  quit(QuitFailure)
-
-#request settings
-let apiKey = getEnv("OPENAI_API_KEY")
-let model = "text-davinci-002"
-let maxLength = 2048
-
-proc printSlow(s: string) =
+# Prints characters one by one
+proc printSlow(s: string, delay: int) =
   for ch in s:
     stdout.write(ch)
     stdout.flushFile()
     if ch != ' ':
-      sleep(10)
+      sleep(delay)
   stdout.write('\n')
   stdout.write('\n')
 
-# Set the URL for the request
-let url = fmt"https://api.openai.com/v1/engines/{model}/completions"
+proc input(prompt = ""): string =
+    ## Python-like ``input()`` procedure.
+    if prompt.len > 0:
+      stdout.write(prompt)
+    stdin.readLine()
 
-#define headers
-var openaiheaders = newHttpHeaders()
-openaiheaders.add("Content-Type", "application/json")
-openaiheaders.add("Authorization", fmt"Bearer {apiKey}")
-openaiheaders.add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15',")
+let helptxt = """Usage: gptcli give me a hello world program written in nim...
+Parameters are combined into a unified string and are used as a prompt
 
-# Create a new HTTP client
-let client = newHttpClient()
+Arguments:
+  --help    displays this message
+  --start   very convinient if you want to ask multiple questions
 
-# Set the headers for the request
-client.headers = openaiheaders
+https://nimble.directory/pkg/gptcli"""
 
 # Set the body of the request
-let inputprompt = commandLineParams().join(" ")
+if paramStr(1) == "--help":
+  echo(helptxt)
+elif paramStr(1) == "--start":
+  let client = constructClient(openAiToken())
+  echo("Type quit to stop\n")
+  while true:
+    let data = input("~$: ")
+    if data != "quit":
+      let resp = client.post(selectEngine(), body = constructRequestBody(data, 2048, 0.5))
 
-let body = %*{
-  "prompt": inputprompt,
-  "max_tokens": maxLength,
-  "temperature": 0.5
-}
-
-# Send the post request and handle the response
-let resp = client.post(url, body = $body.toJson())
-
-if resp.status != $Http200:
-  echo("Error: ", resp.status)
+      if resp.status != $Http200:
+        echo("Error: ", resp.status)
+      else:
+        let result = parseOutputBody(resp.body)
+        echo("\nChatGPT~>")
+        printSlow(result, 10)
+    else:
+      quit(QuitSuccess)
 else:
-  let result = resp.body.parseJson()
-  let output = result["choices"][0]["text"].str
-  printSlow(output)
+  let client = constructClient(openAiToken())
+
+  let inputText = commandLineParams().join(" ")
+
+  let resp = client.post(selectEngine(), body = constructRequestBody(inputText, 2048, 0.5))
+
+  if resp.status != $Http200:
+    echo("Error: ", resp.status)
+  else:
+    let result = parseOutputBody(resp.body)
+    printSlow(result, 10)
