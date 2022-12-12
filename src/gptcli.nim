@@ -17,7 +17,6 @@ proc printSlow(s: string, delay: int) =
   stdout.write('\n')
 
 proc input(prompt = ""): string =
-    ## Python-like ``input()`` procedure.
     if prompt.len > 0:
       stdout.write(prompt)
     stdin.readLine()
@@ -35,7 +34,7 @@ proc gptcli(start=false, model="text-davinci-003", length=2048, temperature=0.5,
           echo("Error: ", resp.status)
         else:
           let output = parseOutputBody(resp.body)
-          echo("\nChatGPT~>")
+          echo("\nAI~>")
           printSlow(output, 10)
       else:
         quit(QuitSuccess)

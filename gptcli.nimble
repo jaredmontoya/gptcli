@@ -2,7 +2,7 @@
 
 version       = "1.2.1"
 author        = "HACKKER"
-description   = "chatgpt cli client written in nim"
+description   = "OpenAI GPTs cli client written in nim"
 license       = "MIT"
 srcDir        = "src"
 installExt    = @["nim"]

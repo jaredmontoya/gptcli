@@ -28,7 +28,7 @@ proc constructClient*(apiKey: string): HttpClient =
     return(client)
 
 proc constructRequestBody*(input: string, outlength: int, temperature: float): string =
-    ## Constructs request body for chatgpt
+    ## Constructs request body for GPTs
     let body = %*{
         "prompt": input,
         "max_tokens": outlength,
