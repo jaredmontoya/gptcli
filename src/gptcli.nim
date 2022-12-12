@@ -1,4 +1,4 @@
-import httpclient, os, strutils
+import httpclient, os, strutils, cligen
 import gptclipkg/openai
 
 # Painless keyboard interruption
@@ -22,43 +22,38 @@ proc input(prompt = ""): string =
       stdout.write(prompt)
     stdin.readLine()
 
-let helptxt = """Usage: gptcli give me a hello world program written in nim...
-Parameters are combined into a unified string and are used as a prompt
+proc gptcli(start=false, model="text-davinci-003", length=2048, temperature=0.5, apikeyvar="OPENAI_API_KEY", userinput: seq[string]): int =
+  if start == true:
+    let client = constructClient(openAiToken(apikeyvar))
+    echo("Type quit to stop\n")
+    while true:
+      let data = input("~$: ")
+      if data != "quit":
+        let resp = client.post(selectEngine(model), body = constructRequestBody(data, 2048, 0.5))
 
-Arguments:
-  --help    displays this message
-  --start   very convinient if you want to ask multiple questions
-
-https://nimble.directory/pkg/gptcli"""
-
-# Set the body of the request
-if paramStr(1) == "--help":
-  echo(helptxt)
-elif paramStr(1) == "--start":
-  let client = constructClient(openAiToken())
-  echo("Type quit to stop\n")
-  while true:
-    let data = input("~$: ")
-    if data != "quit":
-      let resp = client.post(selectEngine(), body = constructRequestBody(data, 2048, 0.5))
-
-      if resp.status != $Http200:
-        echo("Error: ", resp.status)
+        if resp.status != $Http200:
+          echo("Error: ", resp.status)
+        else:
+          let output = parseOutputBody(resp.body)
+          echo("\nChatGPT~>")
+          printSlow(output, 10)
       else:
-        let result = parseOutputBody(resp.body)
-        echo("\nChatGPT~>")
-        printSlow(result, 10)
-    else:
-      quit(QuitSuccess)
-else:
-  let client = constructClient(openAiToken())
-
-  let inputText = commandLineParams().join(" ")
-
-  let resp = client.post(selectEngine(), body = constructRequestBody(inputText, 2048, 0.5))
-
-  if resp.status != $Http200:
-    echo("Error: ", resp.status)
+        quit(QuitSuccess)
   else:
-    let result = parseOutputBody(resp.body)
-    printSlow(result, 10)
+    let client = constructClient(openAiToken(apikeyvar))
+
+    let resp = client.post(selectEngine(model), body = constructRequestBody(userinput.join(" "), length, temperature))
+
+    if resp.status != $Http200:
+      echo("Error: ", resp.status)
+    else:
+      let output = parseOutputBody(resp.body)
+      printSlow(output, 10)
+
+dispatch(gptcli, help = {
+  "start": "open chat",
+  "model": "select a different model",
+  "length": "choose the max length of the output text",
+  "temperature": "the level of randomness in models' response",
+  "apikeyvar": "change the environment variable where the api key is taken from"
+})

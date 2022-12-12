@@ -1,7 +1,7 @@
 import os, httpclient, strformat, json
 import std/jsonutils
 
-proc openAiToken*(envar="OPENAI_API_KEY"): string =
+proc openAiToken*(envar: string): string =
     ## Gets OpenAI token from environment variable
     if not existsEnv(envar):
         echo(fmt"Environment variable {envar} is not set, you can get one here: https://beta.openai.com/account/api-keys")
@@ -13,7 +13,7 @@ proc openAiToken*(envar="OPENAI_API_KEY"): string =
     else:
         return(getEnv(envar))
 
-proc selectEngine*(model="text-davinci-002"): string =
+proc selectEngine*(model: string): string =
     ## Gives an API url for the specified model
     return fmt"https://api.openai.com/v1/engines/{model}/completions"
 
@@ -27,7 +27,7 @@ proc constructClient*(apiKey: string): HttpClient =
     client.headers = openaiheaders
     return(client)
 
-proc constructRequestBody*(input: string, outlength=2048, temperature=0.5): string =
+proc constructRequestBody*(input: string, outlength: int, temperature: float): string =
     ## Constructs request body for chatgpt
     let body = %*{
         "prompt": input,
