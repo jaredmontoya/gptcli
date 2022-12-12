@@ -1,11 +1,10 @@
 # GPTCLI
 
-
 [![Build status](https://github.com/Yardanico/nimpylib/workflows/Build/badge.svg)](https://github.com/Yardanico/nimpylib/actions)
 ![](https://img.shields.io/github/languages/top/HACCKKER/gptcli?style=flat)
 ![](https://img.shields.io/github/languages/code-size/HACCKKER/gptcli?style=flat)
 
-[ChatGPT](https://chat.openai.com/chat) cli client written in nim
+OpenAI GPTs cli client written in nim
 
 # Installation
 To install gptcli, you can simply run
@@ -21,5 +20,5 @@ nimble install gptcli
 
 # Intended use
 
-- quickly querying chat gpt from cli without using heavy electron(next.js) interface.
+- quickly querying OpenAI's GPTs from cli without using heavy electron(next.js) interface.
 - run `gptcli --help` for more info
