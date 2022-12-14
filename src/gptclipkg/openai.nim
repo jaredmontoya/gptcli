@@ -27,7 +27,8 @@ proc constructClient*(apiKey: string): HttpClient =
     client.headers = openaiheaders
     return(client)
 
-proc constructRequestBody*(input: string, outlength: int, temperature: float): string =
+proc constructRequestBody*(input: string, outlength: int,
+        temperature: float): string =
     ## Constructs request body for GPTs
     let body = %*{
         "prompt": input,
