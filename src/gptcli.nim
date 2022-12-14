@@ -21,7 +21,7 @@ proc input(prompt = ""): string =
       stdout.write(prompt)
     stdin.readLine()
 
-proc gptcli(start=false, model="text-davinci-003", length=2048, temperature=0.5, apikeyvar="OPENAI_API_KEY", userinput: seq[string]): int =
+proc gptcli(start=false, instant=false, model="text-davinci-003", length=2048, temperature=0.5, apikeyvar="OPENAI_API_KEY", userinput: seq[string]): int =
   if start == true:
     let client = constructClient(openAiToken(apikeyvar))
     echo("Type quit to stop\n")
@@ -35,7 +35,10 @@ proc gptcli(start=false, model="text-davinci-003", length=2048, temperature=0.5,
         else:
           let output = parseOutputBody(resp.body)
           echo("\nAI~>")
-          printSlow(output, 10)
+          if instant == true:
+            echo(output)
+          else:
+            printSlow(output, 10)
       else:
         quit(QuitSuccess)
   else:
@@ -47,10 +50,14 @@ proc gptcli(start=false, model="text-davinci-003", length=2048, temperature=0.5,
       echo("Error: ", resp.status)
     else:
       let output = parseOutputBody(resp.body)
-      printSlow(output, 10)
+      if instant == true:
+        echo(output)
+      else:
+        printSlow(output, 10)
 
 dispatch(gptcli, help = {
   "start": "open chat",
+  "instant": "instantly prints all of the output text",
   "model": "select a different model",
   "length": "choose the max length of the output text",
   "temperature": "the level of randomness in models' response",
