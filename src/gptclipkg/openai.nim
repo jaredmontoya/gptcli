@@ -37,6 +37,14 @@ proc constructRequestBody*(input: string, outlength: int,
     }
     return($body.toJson())
 
-proc parseOutputBody*(json: string): string =
-    ## returns generated text from the returned json
+proc parseText*(json: string): string =
+    ## returns text value from OpenAI's json
     return(json.parseJson()["choices"][0]["text"].str)
+
+proc parseFinishReason*(json: string): string =
+    ## returns finish_reason value from OpenAI's json
+    return(json.parseJson()["choices"][0]["finish_reason"].str)
+
+proc parseId*(json: string): string =
+    ## returns id value from OpenAI's json
+    return(json.parseJson()["id"].str)

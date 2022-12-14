@@ -1,6 +1,6 @@
 # Package
 
-version       = "1.3.1"
+version       = "2.2.0"
 author        = "HACKKER"
 description   = "OpenAI GPTs cli client written in nim"
 license       = "MIT"

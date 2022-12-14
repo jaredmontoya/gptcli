@@ -21,14 +21,15 @@ proc input(prompt = ""): string =
         stdout.write(prompt)
     stdin.readLine()
 
-proc gptcli(start = false, instant = false, model = "text-davinci-003",
-        length = 2048, temperature = 0.5, apikeyvar = "OPENAI_API_KEY",
+proc gptcli(start = false, instant = false, verbose = false,
+        model = "text-davinci-003", length = 2048, temperature = 0.5,
+                apikeyvar = "OPENAI_API_KEY",
         userinput: seq[string]): int =
     if start == true:
         let client = constructClient(openAiToken(apikeyvar))
         echo("Type quit to stop\n")
         while true:
-            let data = input("~$: ")
+            let data = input("You: ")
             if data != "quit":
                 let resp = client.post(selectEngine(model),
                         body = constructRequestBody(data, 2048, 0.5))
@@ -36,8 +37,11 @@ proc gptcli(start = false, instant = false, model = "text-davinci-003",
                 if resp.status != $Http200:
                     echo("Error: ", resp.status)
                 else:
-                    let output = parseOutputBody(resp.body)
-                    echo("\nAI~>")
+                    if verbose == true:
+                        echo("\n", resp.body)
+
+                    let output = strip(parseText(resp.body))
+                    stdout.write("\nAI: ")
                     if instant == true:
                         echo(output)
                     else:
@@ -51,7 +55,10 @@ proc gptcli(start = false, instant = false, model = "text-davinci-003",
                 userinput.join(" "), length, temperature))
 
         if resp.status == $Http200:
-            let output = parseOutputBody(resp.body)
+            if verbose == true:
+                echo("\n", resp.body)
+
+            let output = strip(parseText(resp.body))
 
             if instant == true:
                 echo(output)
@@ -69,6 +76,7 @@ proc gptcli(start = false, instant = false, model = "text-davinci-003",
 dispatch(gptcli, help = {
     "start": "open chat",
     "instant": "instantly prints all of the response",
+    "verbose": "prints entire json for debugging",
     "model": "select a different model",
     "length": "choose the max length of the response",
     "temperature": "the level of randomness in models' response",
