@@ -50,20 +50,27 @@ proc gptcli(start = false, instant = false, model = "text-davinci-003",
         let resp = client.post(selectEngine(model), body = constructRequestBody(
                 userinput.join(" "), length, temperature))
 
-        if resp.status != $Http200:
-            echo("Error: ", resp.status)
-        else:
+        if resp.status == $Http200:
             let output = parseOutputBody(resp.body)
+
             if instant == true:
                 echo(output)
             else:
                 printSlow(output, 10)
+        elif resp.status == $Http401:
+            echo("The API key that you provided is invalid")
+        elif resp.status == $Http404:
+            echo("The model that you selected does not exist")
+        elif resp.status == $Http400:
+            echo("Some of the parameters that you provided are invalid")
+        else:
+            echo("Error: ", resp.status)
 
 dispatch(gptcli, help = {
     "start": "open chat",
-    "instant": "instantly prints all of the output text",
+    "instant": "instantly prints all of the response",
     "model": "select a different model",
-    "length": "choose the max length of the output text",
+    "length": "choose the max length of the response",
     "temperature": "the level of randomness in models' response",
     "apikeyvar": "change the environment variable where the api key is taken from"
 })
