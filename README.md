@@ -1,6 +1,6 @@
 # GPTCLI
 
-[![Build status](https://github.com/Yardanico/nimpylib/workflows/Build/badge.svg)](https://github.com/Yardanico/nimpylib/actions)
+[![Build status](https://github.com/HACCKKER/gptcli/workflows/Build/badge.svg)](https://github.com/HACCKKER/gptcli/actions)
 ![](https://img.shields.io/github/languages/top/HACCKKER/gptcli?style=flat)
 ![](https://img.shields.io/github/languages/code-size/HACCKKER/gptcli?style=flat)
 
