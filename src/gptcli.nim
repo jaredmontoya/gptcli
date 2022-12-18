@@ -31,8 +31,8 @@ proc gptcli(start = false, instant = false, verbose = false,
         while true:
             let data = input("You: ")
             if data != "quit":
-                let resp = client.post(selectEngine(model),
-                        body = constructRequestBody(data, 2048, 0.5))
+                let resp = client.post(apiUrl,
+                        body = constructRequestBody(model, data, 2048, 0.5))
 
                 if resp.status != $Http200:
                     echo("Error: ", resp.status)
@@ -51,7 +51,7 @@ proc gptcli(start = false, instant = false, verbose = false,
     else:
         let client = constructClient(openAiToken(apikeyvar))
 
-        let resp = client.post(selectEngine(model), body = constructRequestBody(
+        let resp = client.post(apiUrl, body = constructRequestBody(model,
                 userinput.join(" "), length, temperature))
 
         if resp.status == $Http200:

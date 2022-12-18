@@ -1,6 +1,8 @@
 import os, httpclient, strformat, json
 import std/jsonutils
 
+const apiUrl* = "https://api.openai.com/v1/completions"
+
 proc openAiToken*(envar: string): string =
     ## Gets OpenAI token from environment variable
     if not existsEnv(envar):
@@ -13,24 +15,21 @@ proc openAiToken*(envar: string): string =
     else:
         return(getEnv(envar))
 
-proc selectEngine*(model: string): string =
-    ## Gives an API url for the specified model
-    return fmt"https://api.openai.com/v1/engines/{model}/completions"
-
-proc constructClient*(apiKey: string): HttpClient =
+proc constructClient*(apiKey: string, userAgent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15',"): HttpClient =
     ## constructs a client with custom authentication headers
     var openAiHeaders = newHttpHeaders()
     openAiHeaders.add("Content-Type", "application/json")
     openAiHeaders.add("Authorization", fmt"Bearer {apiKey}")
-    openAiHeaders.add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15',")
+    openAiHeaders.add("User-Agent", userAgent)
     let client = newHttpClient()
     client.headers = openaiheaders
     return(client)
 
-proc constructRequestBody*(input: string, outlength: int,
+proc constructRequestBody*(model: string, input: string, outlength: int,
         temperature: float): string =
     ## Constructs request body for GPTs
     let body = %*{
+        "model": model,
         "prompt": input,
         "max_tokens": outlength,
         "temperature": temperature
