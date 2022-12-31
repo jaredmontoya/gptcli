@@ -20,5 +20,5 @@ nimble install gptcli
 
 # Intended use
 
-- quickly querying OpenAI's GPTs from cli without using heavy electron(next.js) interface.
+- quickly querying OpenAI's GPTs from cli without using heavy web interface.
 - run `gptcli --help` for more info
