@@ -3,7 +3,7 @@ import std/jsonutils
 
 const apiUrl* = "https://api.openai.com/v1/completions"
 
-proc openAiToken*(envar: string): string =
+proc openaiToken*(envar: string): string =
     ## Gets OpenAI token from environment variable
     if not existsEnv(envar):
         echo(fmt"Environment variable {envar} is not set, you can get one here: https://beta.openai.com/account/api-keys")
@@ -25,13 +25,13 @@ proc constructClient*(apiKey: string, userAgent="Mozilla/5.0 (Macintosh; Intel M
     client.headers = openaiheaders
     return(client)
 
-proc constructRequestBody*(model: string, input: string, outlength: int,
+proc constructRequestBody*(engine: string, input: string, maxTokens: int,
         temperature: float): string =
     ## Constructs request body for GPTs
     let body = %*{
-        "model": model,
+        "model": engine,
         "prompt": input,
-        "max_tokens": outlength,
+        "max_tokens": maxTokens,
         "temperature": temperature
     }
     return($body.toJson())

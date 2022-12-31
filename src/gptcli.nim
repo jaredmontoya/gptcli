@@ -25,8 +25,8 @@ proc gptcli(start = false, instant = false, verbose = false,
         model = "text-davinci-003", length = 2048, temperature = 0.5,
                 apikeyvar = "OPENAI_API_KEY",
         userinput: seq[string]): int =
+    let client = constructClient(openaiToken(apikeyvar))
     if start == true:
-        let client = constructClient(openAiToken(apikeyvar))
         echo("Type quit to stop\n")
         while true:
             let data = input("You: ")
@@ -49,8 +49,6 @@ proc gptcli(start = false, instant = false, verbose = false,
             else:
                 quit(QuitSuccess)
     else:
-        let client = constructClient(openAiToken(apikeyvar))
-
         let resp = client.post(apiUrl, body = constructRequestBody(model,
                 userinput.join(" "), length, temperature))
 
@@ -80,5 +78,5 @@ dispatch(gptcli, help = {
     "model": "select a different model",
     "length": "choose the max length of the response",
     "temperature": "the level of randomness in models' response",
-    "apikeyvar": "change the environment variable where the api key is taken from"
+    "apikeyvar": "choose an environment variable from which the api key is taken"
 })
