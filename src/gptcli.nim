@@ -14,7 +14,6 @@ proc printSlow(s: string, delay: int) =
         if ch != ' ':
             sleep(delay)
     stdout.write('\n')
-    stdout.write('\n')
 
 proc input(prompt = ""): string =
     if prompt.len > 0:
@@ -27,9 +26,9 @@ proc gptcli(start = false, instant = false, verbose = false,
         userinput: seq[string]): int =
     let client = constructClient(openaiToken(apikeyvar))
     if start == true:
-        echo("Type quit to stop\n")
+        echo("Type quit to stop")
         while true:
-            let data = input("You: ")
+            let data = input("\nYou: ")
             if data != "quit":
                 let resp = client.post(apiUrl,
                         body = constructRequestBody(model, data, 2048, 0.5))
