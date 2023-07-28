@@ -9,7 +9,7 @@ setControlCHook(ctrlc)
 proc getOpenaiToken(envar: string): string =
     ## Gets OpenAI token from environment variable
     if not existsEnv(envar):
-        echo(fmt"Environment variable {envar} is not set, you can get one here: https://beta.openai.com/account/api-keys")
+        echo(fmt"Environment variable {envar} is not set, you can get one here: https://platform.openai.com/account/api-keys")
         echo("add this:")
         echo(fmt"  export {envar}=your api key")
         echo("to your .bashrc or .zshrc")
