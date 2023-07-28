@@ -1,0 +1,7 @@
+.vscode
+.idea
+nimcache/
+nimblecache/
+htmldocs/
+tests/topenai
+gptcli
