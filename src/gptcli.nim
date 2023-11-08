@@ -1,6 +1,6 @@
 import strutils, json
 import cligen, pyopenai
-import funcs
+import gptclipkg/funcs
 
 
 # Painless keyboard interruption
