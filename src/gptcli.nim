@@ -1,90 +1,110 @@
-import os, strutils, strformat, json
+import strutils, json
 import cligen, pyopenai
+import funcs
+
 
 # Painless keyboard interruption
 proc ctrlc() {.noconv.} =
-    quit(QuitSuccess)
+  quit(QuitSuccess)
 setControlCHook(ctrlc)
 
-proc getOpenaiToken(envar: string): string =
-    ## Gets OpenAI token from environment variable
-    if not existsEnv(envar):
-        echo(fmt"Environment variable {envar} is not set, you can get one here: https://platform.openai.com/account/api-keys")
-        echo("add this:")
-        echo(fmt"  export {envar}=your api key")
-        echo("to your .bashrc or .zshrc")
-        echo("or if you are on windows, edit environment variables in the settings")
-        quit(QuitFailure)
-    else:
-        return getEnv(envar)
 
-# Prints characters one by one
-proc printSlow(s: string, delay: int) =
-    for ch in s:
-        stdout.write(ch)
-        stdout.flushFile()
-        if ch != ' ':
-            sleep(delay)
-    stdout.write('\n')
+proc gptcli(chat = false, instant = false, debug = false,
+    model = "gpt-3.5-turbo", length: uint = 0, temperature = 1.0,
+    systemPrompt = "You are a helpful assistant.",
+    apiKey = "OPENAI_API_KEY", apiBase = "https://api.openai.com/v1",
+    prompt: seq[string]
+  ): int =
+  var openai = OpenAiClient(
+    apiKey: getOpenaiToken(apiKey),
+    apiBase: apiBase
+  )
+  var messages: seq[JsonNode]
 
-proc input(prompt = ""): string =
-    if prompt.len > 0:
-        stdout.write(prompt)
-    stdin.readLine()
+  if systemPrompt != "":
+    messages.add(
+      %*{
+        "role": "system",
+        "content": systemPrompt
+      }
+    )
 
-proc gptcli(chat = false, instant = false, verbose = false,
-        model = "text-davinci-003", length: uint = 2048, temperature = 0.5,
-                apikeyvar = "OPENAI_API_KEY",
-        userinput: seq[string]): int =
-    var openai = OpenAiClient(apiKey: getOpenaiToken(apikeyvar))
-    case chat:
-        of true:
-            echo("Type quit to stop")
-            while true:
-                let data = input("\nYou: ")
-                if data != "quit":
-                    let resp = openai.createCompletion(
-                        model = model,
-                        prompt = data,
-                        maxTokens = length,
-                        temperature = temperature
-                    )
+  case chat:
+    of true:
+      echo("Type quit to stop")
 
-                    if verbose == true:
-                        echo(resp.pretty())
+      while true:
+        let data = input("\nYou: ")
 
-                    let output = resp["choices"][0]["text"].str
-                    stdout.write("\nAI: ")
-                    if instant == true:
-                        echo(output)
-                    else:
-                        printSlow(output, 10)
-                else:
-                    quit(QuitSuccess)
+        if data != "quit":
+          messages.add(
+            %*{
+              "role": "user",
+              "content": data
+            }
+          )
+
+          let resp = openai.createChatCompletion(
+            model = model,
+            messages = messages,
+            maxTokens = length,
+            temperature = temperature
+          )
+
+          messages.add(
+            resp["choices"][0]["message"]
+          )
+
+          let output = resp["choices"][0]["message"]["content"].str
+
+          if debug == true:
+            echo(resp.pretty())
+
+          stdout.write("\nAI: ")
+          if instant == true:
+            echo(output)
+          else:
+            printSlow(output, 10)
         else:
-            let resp = openai.createCompletion(
-                        model = model,
-                        prompt = userinput.join(" "),
-                        maxTokens = length,
-                        temperature = temperature
-                    )
+          quit(QuitSuccess)
+    else:
+      messages.add(
+        %*{
+          "role": "user",
+          "content": prompt.join(" ")
+        }
+      )
 
-            if verbose == true:
-                echo(resp.pretty())
+      let resp = openai.createChatCompletion(
+        model = model,
+        messages = messages,
+        maxTokens = length,
+        temperature = temperature
+      )
 
-            let output = strip(resp["choices"][0]["text"].str)
+      messages.add(
+        resp["choices"][0]["message"]
+      )
 
-            if instant == true:
-                echo(output)
-            else:
-                printSlow(output, 10)
+      let output = strip(resp["choices"][0]["message"]["content"].str)
 
-dispatch(gptcli, help = {
+      if debug == true:
+        echo(resp.pretty())
+
+      if instant == true:
+        echo(output)
+      else:
+        printSlow(output, 10)
+
+when isMainModule:
+  dispatch(gptcli, help = {
     "chat": "open in chat mode",
     "instant": "instantly prints all of the response",
-    "verbose": "prints entire json for debugging",
+    "debug": "prints returned json for debugging",
     "model": "select a different model",
-    "length": "choose the max length of the response",
-    "temperature": "the level of randomness in models' response",
-    "apikeyvar": "choose an environment variable from which the api key is taken"
-})
+    "length": "choose the max length of the response in tokens",
+    "temperature": "the level of randomness in model's response",
+    "system-prompt": "choose a system ptompt used for the model",
+    "api-key": "choose an environment variable to read the api key from",
+    "api-base": "choose a base api url"
+  })
