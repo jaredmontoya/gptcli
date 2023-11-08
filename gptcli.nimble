@@ -1,9 +1,9 @@
 # Package
 
-version       = "3.2.1"
+version       = "4.0.0"
 author        = "jaredmontoya"
 description   = "OpenAI GPTs cli client written in nim"
-license       = "MIT"
+license       = "GPL-3.0-or-later"
 srcDir        = "src"
 installExt    = @["nim"]
 bin           = @["gptcli"]
@@ -11,6 +11,6 @@ bin           = @["gptcli"]
 
 # Dependencies
 
-requires "nim >= 1.6.0"
-requires "cligen >= 1.5.32"
-requires "pyopenai >= 0.1.0"
+requires "nim ^= 2.0.0"
+requires "cligen ^= 1.6.16"
+requires "pyopenai ^= 0.2.0"
