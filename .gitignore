@@ -3,5 +3,5 @@
 nimcache/
 nimblecache/
 htmldocs/
-tests/topenai
+tests/t_gptcli
 gptcli
