@@ -1,8 +1,13 @@
-.vscode
-.idea
 nimcache/
 nimblecache/
 htmldocs/
+
+# Editor configuration
+.vscode
+.idea
+
+# Binaries
 tests/t_gptcli
+tests/t_gptcli.exe
 gptcli
 gptcli.exe
